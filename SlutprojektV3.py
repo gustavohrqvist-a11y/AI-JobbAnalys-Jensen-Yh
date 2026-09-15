@@ -1,5 +1,5 @@
 #========================================
-#       AI JOBBMATCHNING V5
+#       AI JOBBMATCHNING V3
 #========================================
 # Mål: Matcha användarens profil mot jobbannonser
 # och visa vilka jobb som passar bäst.

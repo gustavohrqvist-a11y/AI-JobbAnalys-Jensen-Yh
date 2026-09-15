@@ -1,0 +1,348 @@
+#========================================
+#       AI JOBBMATCHNING V4
+#========================================
+# Mål: Matcha användarens profil mot jobbannonser
+# och visa vilka jobb som passar bäst.
+#========================================
+
+
+#========================================
+#       KLASSER & METODER
+#========================================
+
+class MatchningsData:
+    # Grundklass som innehåller gemensam information
+    # för användarens profil och jobbannonser.
+    def __init__(self):
+        self.plats = []
+        self.kompetenser = []
+
+
+class Profil(MatchningsData):
+    # Innehåller information om användarens önskemål
+    # och kompetenser.
+    def __init__(self):
+        super().__init__()
+        self.jobb = []
+
+
+    # Låter användaren ange vilket jobb de vill arbeta med.
+    def input_jobb(self):
+        print("\n")
+        print("=" * 40)
+        jobb_input = input("Vad hade du velat jobba som? ").lower().strip().split(",")
+
+        jobb_input = [jobb.strip() for jobb in jobb_input]
+
+        self.jobb.extend(jobb_input)
+        
+
+    # Låter användaren ange var de vill arbeta.
+    def input_plats(self):
+        print("\n")
+        print("=" * 40)
+        plats_input = input("Vart hade du velat Jobba? ").lower().strip().split(",")
+
+        plats_input = [plats.strip() for plats in plats_input]
+
+        self.plats.extend(plats_input)
+
+    # Låter användaren ange sina kompetenser
+    # och sparar dem i profilen.
+    def input_kompetenser(self):
+        print("\n")
+        print("=" * 40)
+        kompetens_input = input("Vad har du för kompetenser? ").lower().strip().split(",")
+        kompetens_input = [kompetens.strip() for kompetens in kompetens_input]
+        self.kompetenser.extend(kompetens_input)
+
+
+class Jobbannons(MatchningsData):
+    # Innehåller information om ett specifikt jobb.
+    def __init__(self, jobb, plats, kompetenser, länk):
+        super().__init__()
+        self.jobb = jobb
+        self.plats = plats
+        self.kompetenser = kompetenser
+        self.länk = länk
+
+
+#========================================
+#       JOBBANNONSER
+#========================================
+
+# Lista med jobbannonser som används för att testa matchningen.
+
+
+
+#========================================
+#       MATCHNING
+#========================================
+
+class Matchare:
+
+    def __init__(self, profil, arbetsmarknad):
+        self.profil = profil
+        self.arbetsmarknad = arbetsmarknad
+
+    def match(self):
+        matchningar = []
+
+        for jobb in self.arbetsmarknad:
+
+            jobb_matchar = False
+
+            for önskat_jobb in self.profil.jobb:
+                if önskat_jobb in jobb.jobb:
+                    jobb_matchar = True
+                    break
+
+            if not jobb_matchar:
+                continue
+
+            poäng = 0
+
+            # Kontrollera plats
+            for plats in self.profil.plats:
+                if plats in jobb.plats:
+                    poäng += 2
+                    break
+
+            # Kontrollera kompetenser
+            for kompetens in self.profil.kompetenser:
+                if kompetens in jobb.kompetenser:
+                    poäng += 1
+
+            # Jobbet matchade yrket
+            if poäng == 0:
+                poäng = 1
+
+            matchningar.append((jobb, poäng))
+
+        matchningar.sort(
+            key=lambda x: x[1],
+            reverse=True
+        )
+
+        return matchningar
+
+
+#========================================
+#       ANVÄNDARENS PROFIL
+#========================================
+
+# Skapar användarens profil.
+profil = Profil()
+
+
+
+
+#========================================
+#       HUVUDFUNKTIONER
+#========================================
+
+def user_ui():
+    # Programmets huvudmeny.
+
+    while True:
+
+        print("\n")
+        print("=" * 40)
+        print("       VÄLKOMMEN TILL AI-JOBBANALYS")
+        print("=" * 40)
+        print("1. Ställ in profil")
+        print("2. Visa matchningar")
+        print("3. Kontrollera Matchningar")
+        print("4. Historik")
+        print("5. Avsluta")
+        print("=" * 40)
+
+        svar = input("Välj ett alternativ 1-5: ")
+
+        # Användaren ställer in sin profil.
+        if svar == "1":
+
+            profil.input_jobb()
+            profil.input_plats()
+            profil.input_kompetenser()
+
+            print("Profil ändrad")
+            print(
+                f"Din profil ser ut såhär, Jobb{profil.jobb} "
+                f"\nPlats/Ort: {profil.plats} "
+                f"\nKompetenser {profil.kompetenser}"
+            )
+
+        # Visar de jobb som matchar användarens profil.
+        
+        elif svar == "2":
+
+            print("\nHämtar aktuella jobbannonser...")
+
+            jobb_fran_api = hämta_jobb_från_api(profil)
+
+            if not jobb_fran_api:
+                print("Inga jobbannonser kunde hämtas.")
+                continue
+
+            matchare = Matchare(profil, jobb_fran_api)
+            matchningar = matchare.match()
+
+            print("\nDina matchningar:")
+
+            for jobb, poäng in matchningar:
+                print(f"- {jobb.jobb} i {jobb.plats} | {poäng} poäng")
+                print(f"  Länk: {jobb.länk}")
+
+
+        # Kontrollerar matchningar.
+        elif svar == "3":
+
+            print("\nHämtar aktuella jobbannonser...")
+
+            jobb_fran_api = hämta_jobb_från_api(profil)
+
+            if not jobb_fran_api:
+                print("Inga jobbannonser kunde hämtas.")
+                continue
+
+            matchare = Matchare(profil, jobb_fran_api)
+            matchningar = matchare.match()
+
+            print("\nDina matchningar:")
+
+            for jobb, poäng in matchningar:
+                print(f"- {jobb.jobb} i {jobb.plats} | {poäng} poäng")
+                print(f"  Länk: {jobb.länk}")
+        
+
+            
+
+
+        # Visar tidigare sökningar och matchningar.
+        elif svar == "4":
+            print("Placeholder")
+
+        # Avslutar programmet.
+        elif svar == "5":
+
+            print("\nTack för denna gång!")
+            break
+
+        # Hanterar ett felaktigt menyval.
+        else:
+
+            print("\nFelaktigt val.")
+            print("Välj en siffra mellan 1 och 5.")
+
+
+#========================================
+#       STÖDFUNKTIONER
+#========================================
+
+
+# Här placeras funktioner som används
+# som stöd för programmets huvudfunktioner.
+
+import requests
+
+
+def hämta_jobb_från_api(profil):
+
+    if not profil.jobb:
+        print("Du måste ställa in din profil först.")
+        return []
+
+    url = "https://jobsearch.api.jobtechdev.se/search"
+
+    jobbannonser = []
+
+    try:
+
+        for sökord in profil.jobb:
+
+            print(f"Söker efter: {sökord}")
+
+            params = {
+                "q": sökord,
+                "limit": 20
+            }
+
+            response = requests.get(
+                url,
+                params=params,
+                timeout=10
+            )
+
+            print("Statuskod:", response.status_code)
+
+            if response.status_code != 200:
+                print("Kunde inte hämta jobbannonser.")
+                print(response.text)
+                continue
+
+            data = response.json()
+
+            print("Antal träffar:", len(data.get("hits", [])))
+
+            # 👇 HÄR ska du ändra
+            for jobb in data.get("hits", []):
+
+                titel = (jobb.get("headline") or "").strip().lower()
+
+                plats_info = jobb.get("workplace_address") or {}
+
+                plats = (plats_info.get("municipality") or "").strip().lower()
+
+                länk = jobb.get("webpage_url") or ""
+
+                annons = Jobbannons(
+                    titel,
+                    plats,
+                    [],
+                    länk
+                )
+
+                jobbannonser.append(annons)
+
+        return jobbannonser
+
+    except requests.exceptions.RequestException as fel:
+
+        print("Ett fel uppstod när API:t kontaktades.")
+        print(fel)
+
+        return []
+
+#========================================
+#       STARTA PROGRAMMET
+#========================================
+
+# Startar programmets huvudmeny.
+user_ui()
+
+
+#========================================
+#       UTVECKLINGSPLAN
+#========================================
+
+#1. Profil
+#   ├── input_jobb()
+#   ├── input_plats()
+#   └── input_kompetenser()
+#             ↓
+#2. Testa att profilen sparar rätt information
+#             ↓
+#3. Gör menyval 1 färdigt
+#             ↓
+#4. Skapa några enkla jobbannonser för test
+#             ↓
+#5. Bygg matchningen
+#             ↓
+#6. Visa matchningsresultatet
+#             ↓
+#7. Lägg till historik
+#             ↓
+#8. Validering
+#             ↓
+#9. API
