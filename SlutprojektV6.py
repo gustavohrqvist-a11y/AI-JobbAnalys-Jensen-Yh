@@ -9,7 +9,6 @@
 #========================================
 #       IMPORTER
 #========================================
-
 import requests
 import json
 from datetime import datetime
@@ -18,11 +17,9 @@ from datetime import datetime
 #========================================
 #       KLASSER & METODER
 #========================================
-
 class MatchningsData:
     # Grundklass som innehåller gemensam information
     # för användarens profil och jobbannonser.
-
     def __init__(self):
         self.plats = []
         self.kompetenser = []
@@ -31,62 +28,66 @@ class MatchningsData:
 class Profil(MatchningsData):
     # Innehåller information om användarens önskemål
     # och kompetenser.
-
     def __init__(self):
         super().__init__()
         self.jobb = []
-
 
     # Låter användaren ange vilket jobb de vill arbeta med.
     def input_jobb(self):
         print("\n" + "=" * 40)
 
-        jobb_input = input(
-            "Vad hade du velat jobba som? "
-        ).lower().strip().split(",")
+        try:
+            jobb_input = input(
+                "Vad hade du velat jobba som? "
+            ).lower().strip().split(",")
 
-        jobb_input = [jobb.strip() for jobb in jobb_input]
+            jobb_input = [jobb.strip() for jobb in jobb_input]
+            self.jobb.extend(jobb_input)
 
-        self.jobb.extend(jobb_input)
-
+        except (KeyboardInterrupt, EOFError):
+            print("\nInmatningen avbröts.")
 
     # Låter användaren ange var de vill arbeta.
     def input_plats(self):
         print("\n" + "=" * 40)
 
-        plats_input = input(
-            "Vart hade du velat jobba? "
-        ).lower().strip().split(",")
+        try:
+            plats_input = input(
+                "Vart hade du velat jobba? "
+            ).lower().strip().split(",")
 
-        plats_input = [plats.strip() for plats in plats_input]
+            plats_input = [plats.strip() for plats in plats_input]
+            self.plats.extend(plats_input)
 
-        self.plats.extend(plats_input)
-
+        except (KeyboardInterrupt, EOFError):
+            print("\nInmatningen avbröts.")
 
     # Låter användaren ange sina kompetenser
     # och sparar dem i profilen.
     def input_kompetenser(self):
         print("\n" + "=" * 40)
 
-        kompetens_input = input(
-            "Vad har du för kompetenser? "
-        ).lower().strip().split(",")
+        try:
+            kompetens_input = input(
+                "Vad har du för kompetenser? "
+            ).lower().strip().split(",")
 
-        kompetens_input = [
-            kompetens.strip()
-            for kompetens in kompetens_input
-        ]
+            kompetens_input = [
+                kompetens.strip()
+                for kompetens in kompetens_input
+            ]
 
-        self.kompetenser.extend(kompetens_input)
+            self.kompetenser.extend(kompetens_input)
+
+        except (KeyboardInterrupt, EOFError):
+            print("\nInmatningen avbröts.")
 
 
 class Jobbannons(MatchningsData):
     # Innehåller information om ett specifikt jobb
     # som hämtas från API:t.
-
     def __init__(self, jobb, plats, kompetenser, länk):
         super().__init__()
-
         self.jobb = jobb
         self.plats = plats
         self.kompetenser = kompetenser
@@ -96,15 +97,12 @@ class Jobbannons(MatchningsData):
 #========================================
 #       MATCHNING
 #========================================
-
 class Matchare:
     # Jämför användarens profil med jobbannonser
     # och räknar ut en matchningspoäng.
-
     def __init__(self, profil, arbetsmarknad):
         self.profil = profil
         self.arbetsmarknad = arbetsmarknad
-
 
     def match(self):
         # Lista där alla jobb som matchar profilen sparas.
@@ -119,7 +117,6 @@ class Matchare:
             jobb_matchar = False
 
             for önskat_jobb in self.profil.jobb:
-
                 if önskat_jobb in jobb.jobb:
                     jobb_matchar = True
                     break
@@ -133,7 +130,6 @@ class Matchare:
             # Ger poäng om jobbets plats
             # matchar användarens önskade plats.
             for plats in self.profil.plats:
-
                 if plats in jobb.plats:
                     poäng += 2
                     break
@@ -141,7 +137,6 @@ class Matchare:
             # Ger poäng för varje kompetens
             # som matchar jobbannonsen.
             for kompetens in self.profil.kompetenser:
-
                 if kompetens in jobb.kompetenser:
                     poäng += 1
 
@@ -165,27 +160,22 @@ class Matchare:
 #========================================
 #       API
 #========================================
-
 def hämta_jobb_från_api(profil):
     # Hämtar aktuella jobbannonser från JobTechs API
     # baserat på användarens önskade jobb.
-
     if not profil.jobb:
         print("Du måste ställa in din profil först.")
         return []
 
     url = "https://jobsearch.api.jobtechdev.se/search"
-
     jobbannonser = []
 
     # Lista där alla API-svar sparas.
     alla_data = []
 
     try:
-
         # Söker efter varje önskat jobb separat.
         for sökord in profil.jobb:
-
             print(f"\nSöker efter: {sökord}")
 
             params = {
@@ -246,7 +236,6 @@ def hämta_jobb_från_api(profil):
                 matchade_kompetenser = []
 
                 for kompetens in profil.kompetenser:
-
                     if kompetens in beskrivning:
                         matchade_kompetenser.append(
                             kompetens
@@ -264,113 +253,105 @@ def hämta_jobb_från_api(profil):
                 jobbannonser.append(annons)
 
         # Sparar alla API-svar i jobbdata.json.
-        with open(
-            "jobbdata.json",
-            "w",
-            encoding="utf-8"
-        ) as f:
+        try:
+            with open(
+                "jobbdata.json",
+                "w",
+                encoding="utf-8"
+            ) as f:
+                json.dump(
+                    alla_data,
+                    f,
+                    ensure_ascii=False,
+                    indent=4
+                )
 
-            json.dump(
-                alla_data,
-                f,
-                ensure_ascii=False,
-                indent=4
-            )
+        except OSError as fel:
+            print("\nKunde inte spara jobbdata.")
+            print(fel)
 
         return jobbannonser
 
     # Hanterar fel som kan uppstå när API:t kontaktas.
     except requests.exceptions.RequestException as fel:
-
         print("\nEtt fel uppstod när API:t kontaktades.")
         print(fel)
+        return []
 
+    # Hanterar om API:t skickar ett ogiltigt JSON-svar.
+    except json.JSONDecodeError:
+        print("\nKunde inte läsa svaret från API:t.")
         return []
 
 
 #========================================
 #       SPARA HISTORIK
 #========================================
-
 def spara_historik(profil, matchningar):
     # Försöker läsa tidigare historik.
-
     try:
-
         with open(
             "historik.json",
             "r",
             encoding="utf-8"
         ) as f:
-
             historik = json.load(f)
 
     except FileNotFoundError:
-
         # Om filen inte finns skapas en tom historik.
         historik = []
 
     except json.JSONDecodeError:
-
         # Om historikfilen är trasig börjar vi om
         # med en tom historik.
         historik = []
 
-
     # Skapar en ny sökning.
     ny_sökning = {
-
         "datum": datetime.now().strftime(
             "%Y-%m-%d %H:%M"
         ),
 
         "profil": {
-
             "jobb": profil.jobb,
-
             "plats": profil.plats,
-
             "kompetenser": profil.kompetenser
         },
 
         "matchningar": []
     }
 
-
     # Sparar alla matchningar.
     for jobb, poäng in matchningar:
-
         ny_sökning["matchningar"].append({
-
             "jobb": jobb.jobb,
-
             "plats": jobb.plats,
-
             "poäng": poäng,
-
             "kompetenser": jobb.kompetenser,
-
             "länk": jobb.länk
         })
-
 
     # Lägger den nya sökningen sist i historiken.
     historik.append(ny_sökning)
 
-
     # Sparar hela historiken.
-    with open(
-        "historik.json",
-        "w",
-        encoding="utf-8"
-    ) as f:
+    try:
+        with open(
+            "historik.json",
+            "w",
+            encoding="utf-8"
+        ) as f:
+            json.dump(
+                historik,
+                f,
+                ensure_ascii=False,
+                indent=4
+            )
 
-        json.dump(
-            historik,
-            f,
-            ensure_ascii=False,
-            indent=4
-        )
+    except OSError as fel:
+        print("\nKunde inte spara historiken.")
+        print(fel)
+        return
 
     print("\nSökningen har sparats i historiken.")
 
@@ -378,49 +359,38 @@ def spara_historik(profil, matchningar):
 #========================================
 #       VISA HISTORIK
 #========================================
-
 def visa_historik():
     # Försöker läsa historikfilen.
-
     try:
-
         with open(
             "historik.json",
             "r",
             encoding="utf-8"
         ) as f:
-
             historik = json.load(f)
 
     except FileNotFoundError:
-
         print("\nDet finns ingen historik ännu.")
         return
 
     except json.JSONDecodeError:
-
         print("\nHistorikfilen kunde inte läsas.")
         return
 
-
     # Kontrollerar om historiken är tom.
     if not historik:
-
         print("\nDet finns ingen historik ännu.")
         return
-
 
     print("\n" + "=" * 40)
     print("              HISTORIK")
     print("=" * 40)
-
 
     # Går igenom alla tidigare sökningar.
     for nummer, sökning in enumerate(
         historik,
         start=1
     ):
-
         print(f"\nSökning {nummer}")
 
         print(
@@ -442,9 +412,7 @@ def visa_historik():
             f"{', '.join(sökning['profil']['kompetenser'])}"
         )
 
-
         print("\nMatchningar:")
-
 
         # Visar jobben från den gamla sökningen.
         for jobb in sökning["matchningar"]:
@@ -461,26 +429,21 @@ def visa_historik():
                 f"    Poäng: {jobb['poäng']}"
             )
 
-
             # Visar matchande kompetenser.
             if jobb["kompetenser"]:
-
                 print(
                     "    Matchande kompetenser: "
                     f"{', '.join(jobb['kompetenser'])}"
                 )
 
             else:
-
                 print(
                     "    Matchande kompetenser: Inga"
                 )
 
-
             print(
                 f"    Länk: {jobb['länk']}"
             )
-
 
         print("-" * 40)
 
@@ -488,28 +451,21 @@ def visa_historik():
 #========================================
 #       VISA MATCHNINGAR
 #========================================
-
 def visa_matchningar(profil):
     # Hämtar aktuella jobbannonser och visar
     # de jobb som matchar användarens profil.
-
     print("\nHämtar aktuella jobbannonser...")
-
 
     jobb_fran_api = hämta_jobb_från_api(
         profil
     )
 
-
     # Avslutar funktionen om inga jobbannonser hämtades.
     if not jobb_fran_api:
-
         print(
             "Inga jobbannonser kunde hämtas."
         )
-
         return
-
 
     # Skapar en matchare med användarens profil
     # och jobbannonserna från API:t.
@@ -518,19 +474,14 @@ def visa_matchningar(profil):
         jobb_fran_api
     )
 
-
     matchningar = matchare.match()
-
 
     # Visar ett meddelande om inga jobb matchade profilen.
     if not matchningar:
-
         print(
             "\nInga jobb matchade din profil."
         )
-
         return
-
 
     # Sparar sökningen i historiken.
     spara_historik(
@@ -538,11 +489,9 @@ def visa_matchningar(profil):
         matchningar
     )
 
-
     print("\n" + "=" * 40)
     print("           DINA MATCHNINGAR")
     print("=" * 40)
-
 
     # Skriver ut varje matchning och dess poäng.
     for jobb, poäng in matchningar:
@@ -559,21 +508,17 @@ def visa_matchningar(profil):
             f"  Poäng: {poäng}"
         )
 
-
         # Visar vilka kompetenser som matchade.
         if jobb.kompetenser:
-
             print(
                 "  Matchande kompetenser: "
                 f"{', '.join(jobb.kompetenser)}"
             )
 
         else:
-
             print(
                 "  Matchande kompetenser: Inga"
             )
-
 
         # Visar länken till jobbannonsen.
         print(
@@ -584,7 +529,6 @@ def visa_matchningar(profil):
 #========================================
 #       ANVÄNDARENS PROFIL
 #========================================
-
 # Skapar användarens profil.
 profil = Profil()
 
@@ -592,47 +536,39 @@ profil = Profil()
 #========================================
 #       HUVUDFUNKTION
 #========================================
-
 def user_ui():
     # Programmets huvudmeny.
-
     while True:
-
         print("\n")
         print("=" * 40)
         print("       VÄLKOMMEN TILL AI-JOBBANALYS")
         print("=" * 40)
-
         print("1. Ställ in profil")
         print("2. Visa matchningar")
         print("3. Historik")
         print("4. Avsluta")
-
         print("=" * 40)
 
+        try:
+            svar = input(
+                "Välj ett alternativ 1-4: "
+            )
 
-        svar = input(
-            "Välj ett alternativ 1-4: "
-        )
-
+        except (KeyboardInterrupt, EOFError):
+            print("\nProgrammet avslutas.")
+            break
 
         #========================================
         #       STÄLL IN PROFIL
         #========================================
-
         if svar == "1":
-
             # Låter användaren ange sina önskemål
             # och kompetenser.
             profil.input_jobb()
-
             profil.input_plats()
-
             profil.input_kompetenser()
 
-
             print("\nProfil ändrad!")
-
 
             print(
                 f"\nJobb: {profil.jobb}"
@@ -640,49 +576,36 @@ def user_ui():
                 f"\nKompetenser: {profil.kompetenser}"
             )
 
-
         #========================================
         #       VISA MATCHNINGAR
         #========================================
-
         elif svar == "2":
-
             # Hämtar och visar aktuella jobbmatchningar.
             visa_matchningar(
                 profil
             )
 
-
         #========================================
         #       HISTORIK
         #========================================
-
         elif svar == "3":
-
             # Visar tidigare sökningar.
             visa_historik()
-
 
         #========================================
         #       AVSLUTA
         #========================================
-
         elif svar == "4":
-
             # Avslutar programmet.
             print(
                 "\nTack för denna gång!"
             )
-
             break
-
 
         #========================================
         #       FELAKTIGT VAL
         #========================================
-
         else:
-
             # Hanterar ett menyval som inte är giltigt.
             print(
                 "\nFelaktigt val."
@@ -696,7 +619,6 @@ def user_ui():
 #========================================
 #       STARTA PROGRAMMET
 #========================================
-
 # Startar programmets huvudmeny.
 user_ui()
 
@@ -704,7 +626,6 @@ user_ui()
 #========================================
 #       UTVECKLINGSPLAN
 #========================================
-
 # 1. Profil
 #    ├── Jobb
 #    ├── Plats

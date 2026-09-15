@@ -1,0 +1,159 @@
+[
+    {
+        "datum": "2026-09-15 15:36",
+        "profil": {
+            "jobb": [
+                "väktare"
+            ],
+            "plats": [
+                "vu1",
+                "vu2"
+            ],
+            "kompetenser": [
+                "python"
+            ]
+        },
+        "matchningar": [
+            {
+                "jobb": "väktare",
+                "plats": "kristianstad",
+                "poäng": 1,
+                "kompetenser": [],
+                "länk": "https://arbetsformedlingen.se/platsbanken/annonser/31455920"
+            },
+            {
+                "jobb": "väktare",
+                "plats": "luleå",
+                "poäng": 1,
+                "kompetenser": [],
+                "länk": "https://arbetsformedlingen.se/platsbanken/annonser/31372188"
+            },
+            {
+                "jobb": "väktare",
+                "plats": "malmö",
+                "poäng": 1,
+                "kompetenser": [],
+                "länk": "https://arbetsformedlingen.se/platsbanken/annonser/31330489"
+            },
+            {
+                "jobb": "butikskontroll/civil väktare",
+                "plats": "karlstad",
+                "poäng": 1,
+                "kompetenser": [],
+                "länk": "https://arbetsformedlingen.se/platsbanken/annonser/30644496"
+            },
+            {
+                "jobb": "intresseanmälan stockholm väktare",
+                "plats": "stockholm",
+                "poäng": 1,
+                "kompetenser": [],
+                "länk": "https://arbetsformedlingen.se/platsbanken/annonser/31113882"
+            },
+            {
+                "jobb": "väktare - karlskoga",
+                "plats": "karlskoga",
+                "poäng": 1,
+                "kompetenser": [],
+                "länk": "https://arbetsformedlingen.se/platsbanken/annonser/30824599"
+            },
+            {
+                "jobb": "väktare till securitas ljungby",
+                "plats": "ljungby",
+                "poäng": 1,
+                "kompetenser": [],
+                "länk": "https://arbetsformedlingen.se/platsbanken/annonser/31468547"
+            },
+            {
+                "jobb": "väktare till securitas helsingborg",
+                "plats": "helsingborg",
+                "poäng": 1,
+                "kompetenser": [],
+                "länk": "https://arbetsformedlingen.se/platsbanken/annonser/31468502"
+            },
+            {
+                "jobb": "väktare till securitas oskarshamn",
+                "plats": "oskarshamn",
+                "poäng": 1,
+                "kompetenser": [],
+                "länk": "https://arbetsformedlingen.se/platsbanken/annonser/31465814"
+            },
+            {
+                "jobb": "väktare till securitas östersund",
+                "plats": "östersund",
+                "poäng": 1,
+                "kompetenser": [],
+                "länk": "https://arbetsformedlingen.se/platsbanken/annonser/31460036"
+            },
+            {
+                "jobb": "väktare till securitas eskilstuna",
+                "plats": "eskilstuna",
+                "poäng": 1,
+                "kompetenser": [],
+                "länk": "https://arbetsformedlingen.se/platsbanken/annonser/31458154"
+            },
+            {
+                "jobb": "väktare till securitas katrineholm",
+                "plats": "katrineholm",
+                "poäng": 1,
+                "kompetenser": [],
+                "länk": "https://arbetsformedlingen.se/platsbanken/annonser/31458096"
+            },
+            {
+                "jobb": "väktare till securitas karlstad",
+                "plats": "karlstad",
+                "poäng": 1,
+                "kompetenser": [],
+                "länk": "https://arbetsformedlingen.se/platsbanken/annonser/31457239"
+            },
+            {
+                "jobb": "väktare till securitas borlänge",
+                "plats": "borlänge",
+                "poäng": 1,
+                "kompetenser": [],
+                "länk": "https://arbetsformedlingen.se/platsbanken/annonser/31451531"
+            },
+            {
+                "jobb": "väktare till securitas uppsala",
+                "plats": "uppsala",
+                "poäng": 1,
+                "kompetenser": [],
+                "länk": "https://arbetsformedlingen.se/platsbanken/annonser/31409126"
+            },
+            {
+                "jobb": "väktare / civil butikskontrollant",
+                "plats": "stockholm",
+                "poäng": 1,
+                "kompetenser": [],
+                "länk": "https://arbetsformedlingen.se/platsbanken/annonser/31391288"
+            },
+            {
+                "jobb": "väktare till securitas karlshamn",
+                "plats": "karlshamn",
+                "poäng": 1,
+                "kompetenser": [],
+                "länk": "https://arbetsformedlingen.se/platsbanken/annonser/31388425"
+            },
+            {
+                "jobb": "väktare till securitas kristianstad",
+                "plats": "kristianstad",
+                "poäng": 1,
+                "kompetenser": [],
+                "länk": "https://arbetsformedlingen.se/platsbanken/annonser/31388415"
+            },
+            {
+                "jobb": "väktare till securitas hässleholm",
+                "plats": "hässleholm",
+                "poäng": 1,
+                "kompetenser": [],
+                "länk": "https://arbetsformedlingen.se/platsbanken/annonser/31388377"
+            },
+            {
+                "jobb": "väktare till lunds universitet",
+                "plats": "lund",
+                "poäng": 1,
+                "kompetenser": [],
+                "länk": "https://arbetsformedlingen.se/platsbanken/annonser/31386079"
+            }
+        ]
+    }
+]
