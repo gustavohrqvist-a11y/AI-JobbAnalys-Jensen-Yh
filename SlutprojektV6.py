@@ -15,6 +15,15 @@ from datetime import datetime
 
 
 #========================================
+#       NORMALISERING
+#========================================
+def normalisera(text):
+    # Gör texten till små bokstäver
+    # och tar bort onödiga mellanslag.
+    return text.lower().strip()
+
+
+#========================================
 #       KLASSER & METODER
 #========================================
 class MatchningsData:
@@ -39,9 +48,13 @@ class Profil(MatchningsData):
         try:
             jobb_input = input(
                 "Vad hade du velat jobba som? "
-            ).lower().strip().split(",")
+            ).split(",")
 
-            jobb_input = [jobb.strip() for jobb in jobb_input]
+            jobb_input = [
+                normalisera(jobb)
+                for jobb in jobb_input
+            ]
+
             self.jobb.extend(jobb_input)
 
         except (KeyboardInterrupt, EOFError):
@@ -54,9 +67,13 @@ class Profil(MatchningsData):
         try:
             plats_input = input(
                 "Vart hade du velat jobba? "
-            ).lower().strip().split(",")
+            ).split(",")
 
-            plats_input = [plats.strip() for plats in plats_input]
+            plats_input = [
+                normalisera(plats)
+                for plats in plats_input
+            ]
+
             self.plats.extend(plats_input)
 
         except (KeyboardInterrupt, EOFError):
@@ -70,10 +87,10 @@ class Profil(MatchningsData):
         try:
             kompetens_input = input(
                 "Vad har du för kompetenser? "
-            ).lower().strip().split(",")
+            ).split(",")
 
             kompetens_input = [
-                kompetens.strip()
+                normalisera(kompetens)
                 for kompetens in kompetens_input
             ]
 
@@ -209,27 +226,29 @@ def hämta_jobb_från_api(profil):
             # Går igenom jobbannonserna som API:t returnerar.
             for jobb in data.get("hits", []):
 
-                # Hämtar jobbets titel.
-                titel = (
+                # Hämtar jobbets titel och normaliserar den.
+                titel = normalisera(
                     jobb.get("headline") or ""
-                ).strip().lower()
+                )
 
                 # Hämtar information om jobbets plats.
                 plats_info = (
                     jobb.get("workplace_address") or {}
                 )
 
-                plats = (
+                # Hämtar jobbets plats och normaliserar den.
+                plats = normalisera(
                     plats_info.get("municipality") or ""
-                ).strip().lower()
+                )
 
                 # Hämtar länken till jobbannonsen.
                 länk = jobb.get("webpage_url") or ""
 
-                # Hämtar texten från jobbannonsens beskrivning.
-                beskrivning = (
+                # Hämtar texten från jobbannonsens beskrivning
+                # och normaliserar den.
+                beskrivning = normalisera(
                     jobb.get("description", {}).get("text") or ""
-                ).lower()
+                )
 
                 # Hittar användarens kompetenser
                 # som finns i jobbannonsens beskrivning.
