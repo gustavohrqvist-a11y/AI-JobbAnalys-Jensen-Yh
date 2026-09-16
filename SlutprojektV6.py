@@ -180,7 +180,7 @@ def hämta_jobb_från_api(profil):
 
             params = {
                 "q": sökord,
-                "limit": 20
+                "limit": 10
             }
 
             response = requests.get(
