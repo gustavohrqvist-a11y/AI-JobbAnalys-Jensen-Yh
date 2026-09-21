@@ -2,7 +2,7 @@
 
 
 ## Mål
-Matcha en användare med ett jobb för att underlätta att hitta jobb som man är behörig till.
+Målet är att ta fram ett python program som ska matcha en använders profil mot jobbannonser. Programmet ska jämföra användares input data (Yreksroll, plats, kompetens) och sedan poängsätta dem olika matchningarna efter hur bra dem stämmer överens med användarens input.
 
 ## Metod
 1. Hämta in rådata från användaren för att skapa en profil.
@@ -18,10 +18,9 @@ De 5 vanligaste teknologierna var:
 
 
 ## Analys
-Resultatet visar att Python är dominerande för AI-roller i Sverige. Molnkompetens (AWS) och containerisering (Docker) är också viktigt.
+
 
 ## Reflektion
-Det svåraste var att hantera API:ns rate limits. Nästa gång skulle jag lägga till caching för att minska antalet anrop.
+
 
 ## GitHub-länk
-https://github.com/mittanvandare/jobbannons-analys

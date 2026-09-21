@@ -623,29 +623,3 @@ def user_ui():
 user_ui()
 
 
-#========================================
-#       UTVECKLINGSPLAN
-#========================================
-# 1. Profil
-#    ├── Jobb
-#    ├── Plats
-#    └── Kompetenser
-#
-# 2. API
-#    └── Hämta aktuella jobbannonser
-#
-# 3. Matchning
-#    ├── Matcha jobb
-#    ├── Matcha plats
-#    └── Matcha kompetenser
-#
-# 4. Resultat
-#    └── Visa jobb och matchningspoäng
-#
-# 5. Förbättringar
-#    ├── Validering
-#    ├── Historik
-#    └── Bättre användargränssnitt
-#
-# 6. Testning
-#    └── Testa och färdigställ programmet
