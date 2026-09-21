@@ -1,4 +1,3 @@
-
 #========================================
 #       AI JOBBMATCHNING V6
 #========================================
@@ -11,300 +10,229 @@
 #       IMPORTER
 #========================================
 
-import requests
-import json
-from datetime import datetime
+import requests                  # Används för att skicka HTTP-anrop till API:t.
+import json                      # Används för att läsa och spara JSON-filer.
+from datetime import datetime    # Används för att spara datum och tid.
 
 
 #========================================
 #       HJÄLPMETODER
 #========================================
 
-def normalisera(text):
-    """Gör texten enklare att jämföra."""
-    return text.lower().strip()
+def normalisera(text):                           # Funktion som gör text enklare att jämföra.
+    return text.lower().strip()                  # Gör texten till små bokstäver och tar bort mellanslag.
 
 
-def visa_kompetenser(kompetenser):
-    """Returnerar matchande kompetenser som text."""
-    if kompetenser:
-        return ", ".join(kompetenser)
-    return "Inga"
+def visa_kompetenser(kompetenser):               # Tar emot en lista med kompetenser.
+    return ", ".join(kompetenser) if kompetenser else "Inga"  # Gör listan till text eller visar "Inga".
 
 
 #========================================
 #       KLASSER
 #========================================
 
-class MatchningsData:
-    """Basklass för gemensam information."""
-    
-    def __init__(self):
-        self.plats = []
-        self.kompetenser = []
+class MatchningsData:                            # Basklass för gemensam information.
+
+    def __init__(self):                           # Körs när ett objekt skapas.
+        self.plats = []                           # Lista för platser.
+        self.kompetenser = []                     # Lista för kompetenser.
 
 
-class Profil(MatchningsData):
-    """Användarens profil."""
+class Profil(MatchningsData):                    # Profil ärver plats och kompetenser från basklassen.
 
     def __init__(self):
-        super().__init__()
-        self.jobb = []
+        super().__init__()                        # Kör basklassens __init__ och skapar plats/kompetenser.
+        self.jobb = []                            # Lista över jobb användaren vill ha.
 
-    def input_jobb(self):
-        print("\n" + "=" * 40)
 
-        try:
-            jobb_input = input(
-                "Vad hade du velat jobba som? "
-            ).split(",")
+    def input_jobb(self):                         # Hämtar användarens önskade jobb.
+        self._input("Vad hade du velat jobba som? ", "jobb")  # Anropar den gemensamma inmatningsfunktionen.
 
-            jobb_input = [
-                normalisera(jobb)
-                for jobb in jobb_input
-                if jobb.strip()
-            ]
 
-            self.jobb.extend(jobb_input)
+    def input_plats(self):                        # Hämtar önskade arbetsplatser.
+        self._input("Vart hade du velat jobba? ", "plats")  # Anropar samma funktion för plats.
 
-        except (KeyboardInterrupt, EOFError):
-            print("\nInmatningen avbröts.")
 
-    def input_plats(self):
-        print("\n" + "=" * 40)
+    def input_kompetenser(self):                  # Hämtar användarens kompetenser.
+        self._input("Vad har du för kompetenser? ", "kompetenser")  # Anropar samma funktion för kompetenser.
+
+
+    def _input(self, text, attribut):             # Gemensam funktion för all användarinmatning.
+
+        print("\n" + "=" * 40)                    # Skriver ut en avgränsare.
 
         try:
-            plats_input = input(
-                "Vart hade du velat jobba? "
-            ).split(",")
-
-            plats_input = [
-                normalisera(plats)
-                for plats in plats_input
-                if plats.strip()
+            värden = [                              # Skapar en lista med användarens svar.
+                normalisera(x)                      # Normaliserar varje värde.
+                for x in input(text).split(",")    # Delar upp svaret vid kommatecken.
+                if x.strip()                        # Tar bara med värden som inte är tomma.
             ]
+            getattr(self, attribut).extend(värden) # Hittar rätt lista och lägger till värdena.
 
-            self.plats.extend(plats_input)
-
-        except (KeyboardInterrupt, EOFError):
-            print("\nInmatningen avbröts.")
-
-    def input_kompetenser(self):
-        print("\n" + "=" * 40)
-
-        try:
-            kompetens_input = input(
-                "Vad har du för kompetenser? "
-            ).split(",")
-
-            kompetens_input = [
-                normalisera(kompetens)
-                for kompetens in kompetens_input
-                if kompetens.strip()
-            ]
-
-            self.kompetenser.extend(kompetens_input)
-
-        except (KeyboardInterrupt, EOFError):
+        except (KeyboardInterrupt, EOFError):      # Fångar Ctrl+C och avslutad inmatning.
             print("\nInmatningen avbröts.")
 
 
-class Jobbannons(MatchningsData):
-    """Innehåller information om en jobbannons."""
+class Jobbannons(MatchningsData):                 # Klass som representerar en jobbannons.
 
     def __init__(self, jobb, plats, kompetenser, länk):
-        super().__init__()
+        super().__init__()                         # Hämtar plats och kompetenser från basklassen.
+        self.jobb = jobb                           # Sparar jobbets titel.
+        self.plats = plats                         # Sparar jobbets plats.
+        self.kompetenser = kompetenser             # Sparar matchande kompetenser.
+        self.länk = länk                           # Sparar länken till annonsen.
 
-        self.jobb = jobb
-        self.plats = plats
-        self.kompetenser = kompetenser
-        self.länk = länk
 
-
-class Matchare:
-    """Matchar användarens profil mot jobbannonser."""
+class Matchare:                                   # Ansvarar för att matcha profil mot jobb.
 
     def __init__(self, profil, arbetsmarknad):
-        self.profil = profil
-        self.arbetsmarknad = arbetsmarknad
+        self.profil = profil                       # Sparar användarens profil.
+        self.arbetsmarknad = arbetsmarknad         # Sparar alla jobbannonser.
 
-    def match(self):
-        matchningar = []
 
-        # Går igenom alla jobbannonser
-        for jobb in self.arbetsmarknad:
+    def match(self):                               # Räknar ut matchningspoäng.
 
-            jobb_matchar = False
+        matchningar = []                           # Lista där godkända matchningar sparas.
 
-            # Kontrollerar om jobbtiteln matchar
-            for önskat_jobb in self.profil.jobb:
+        for jobb in self.arbetsmarknad:            # Går igenom varje jobbannons.
 
-                if önskat_jobb in jobb.jobb:
-                    jobb_matchar = True
-                    break
+            jobb_matchar = False                   # Börjar med att anta att jobbet inte matchar.
 
-            # Hoppa över jobbet om titeln inte matchar
-            if not jobb_matchar:
-                continue
+            for önskat_jobb in self.profil.jobb:   # Går igenom användarens önskade jobb.
+                if önskat_jobb in jobb.jobb:       # Kontrollerar om önskat jobb finns i jobbtiteln.
+                    jobb_matchar = True            # Jobbet har rätt titel.
+                    break                           # Slutar kontrollera fler jobbtitlar.
 
-            poäng = 0
+            if not jobb_matchar:                   # Om titeln inte matchade...
+                continue                            # ...hoppa över jobbet.
 
-            # Matchar önskad plats
-            for plats in self.profil.plats:
+            poäng = 0                              # Börjar matchningen med 0 poäng.
 
-                if plats in jobb.plats:
-                    poäng += 2
-                    break
+            for plats in self.profil.plats:        # Går igenom användarens önskade platser.
+                if plats in jobb.plats:            # Kontrollerar om platsen matchar.
+                    poäng += 2                      # Rätt plats ger 2 poäng.
+                    break                           # En platsmatch räcker.
 
-            # Matchar användarens kompetenser
-            for kompetens in self.profil.kompetenser:
+            for kompetens in self.profil.kompetenser:  # Går igenom användarens kompetenser.
+                if kompetens in jobb.kompetenser:      # Kontrollerar om kompetensen finns i jobbet.
+                    poäng += 1                          # Varje kompetens ger 1 poäng.
 
-                if kompetens in jobb.kompetenser:
-                    poäng += 1
+            if poäng == 0:                          # Om titel matchade men inget annat gjorde det...
+                poäng = 1                            # ...får jobbet ändå 1 poäng.
 
-            # Ett jobb som matchar titeln får minst 1 poäng
-            if poäng == 0:
-                poäng = 1
+            matchningar.append((jobb, poäng))        # Sparar jobbet tillsammans med poängen.
 
-            matchningar.append((jobb, poäng))
-
-        # Högsta poäng visas först
-        matchningar.sort(
-            key=lambda x: x[1],
-            reverse=True
+        matchningar.sort(                             # Sorterar matchningarna.
+            key=lambda x: x[1],                     # Använder poängen som sorteringsvärde.
+            reverse=True                             # Högsta poängen hamnar först.
         )
 
-        return matchningar
+        return matchningar                            # Returnerar den färdiga listan.
 
 
 #========================================
 #       API
 #========================================
 
-def hämta_jobb_från_api(profil):
+def hämta_jobb_från_api(profil):                    # Hämtar jobb från JobTech API.
 
-    if not profil.jobb:
+    if not profil.jobb:                              # Kontrollerar om användaren valt något jobb.
         print("Du måste ställa in din profil först.")
-        return []
+        return []                                    # Returnerar tom lista om inget jobb valts.
 
-    url = "https://jobsearch.api.jobtechdev.se/search"
-
-    jobbannonser = []
-    alla_data = []
+    url = "https://jobsearch.api.jobtechdev.se/search"  # API-adressen.
+    jobbannonser = []                                # Här sparas skapade Jobbannons-objekt.
+    alla_data = []                                   # Här sparas rådata från API:t.
 
     try:
 
-        # Söker efter varje önskat jobb
-        for sökord in profil.jobb:
+        for sökord in profil.jobb:                   # Söker efter varje önskat jobb.
 
             print(f"\nSöker efter: {sökord}")
 
-            params = {
-                "q": sökord,
-                "limit": 10
-            }
-
-            response = requests.get(
-                url,
-                params=params,
-                timeout=10
+            response = requests.get(                # Skickar GET-anrop till API:t.
+                url,                                 # API-adressen.
+                params={"q": sökord, "limit": 10},  # Sökord och max 10 resultat.
+                timeout=10                            # Avbryter om API:t inte svarar inom 10 sekunder.
             )
 
-            print("Statuskod:", response.status_code)
+            print("Statuskod:", response.status_code)  # Visar API:ts svarskod.
 
-            if response.status_code != 200:
+            if response.status_code != 200:          # 200 betyder att anropet lyckades.
                 print("Kunde inte hämta jobbannonser.")
-                continue
+                continue                             # Fortsätter med nästa sökord.
 
-            data = response.json()
-            alla_data.append(data)
+            data = response.json()                   # Gör om JSON-svaret till Python-data.
+            alla_data.append(data)                   # Sparar hela API-svaret.
 
-            träffar = data.get("hits", [])
+            träffar = data.get("hits", [])           # Hämtar jobbträffarna från svaret.
+            print("Antal träffar:", len(träffar))    # Visar hur många jobb som hittades.
 
-            print("Antal träffar:", len(träffar))
 
-            # Skapar Jobbannons-objekt
-            for jobb in träffar:
+            for jobb in träffar:                     # Går igenom varje jobb från API:t.
 
-                titel = normalisera(
-                    jobb.get("headline") or ""
+                titel = normalisera(                 # Hämtar och normaliserar jobbtiteln.
+                    jobb.get("headline") or ""       # Om titel saknas används tom text.
                 )
 
-                plats_info = jobb.get(
-                    "workplace_address"
-                ) or {}
-
-                plats = normalisera(
-                    plats_info.get("municipality") or ""
+                plats = normalisera(                 # Hämtar och normaliserar arbetsplatsen.
+                    (jobb.get("workplace_address") or {})  # Hämtar adressen eller tom dictionary.
+                    .get("municipality") or ""       # Hämtar kommunen eller tom text.
                 )
 
-                länk = jobb.get(
-                    "webpage_url"
-                ) or ""
+                länk = jobb.get("webpage_url") or "" # Hämtar länk till jobbannonsen.
 
-                beskrivning = normalisera(
-                    jobb.get(
-                        "description", {}
-                    ).get("text") or ""
+                beskrivning = normalisera(           # Hämtar och normaliserar beskrivningen.
+                    jobb.get("description", {})      # Hämtar beskrivningsobjektet.
+                    .get("text") or ""               # Hämtar själva texten.
                 )
 
-                matchade_kompetenser = []
+                matchade_kompetenser = []            # Lista för kompetenser som hittas i annonsen.
 
-                # Letar efter användarens kompetenser
-                # i jobbannonsens beskrivning
-                for kompetens in profil.kompetenser:
+                for kompetens in profil.kompetenser: # Går igenom användarens kompetenser.
+                    if kompetens in beskrivning:     # Kontrollerar om kompetensen finns i texten.
+                        matchade_kompetenser.append(kompetens)  # Sparar matchningen.
 
-                    if kompetens in beskrivning:
-                        matchade_kompetenser.append(
-                            kompetens
-                        )
-
-                annons = Jobbannons(
-                    titel,
-                    plats,
-                    matchade_kompetenser,
-                    länk
+                jobbannonser.append(                    # Lägger till en ny jobbannons.
+                    Jobbannons(                         # Skapar ett Jobbannons-objekt.
+                        titel,                          # Jobbtitel.
+                        plats,                          # Arbetsplats.
+                        matchade_kompetenser,           # Matchande kompetenser.
+                        länk                             # Länk till annonsen.
+                    )
                 )
 
-                jobbannonser.append(annons)
 
         #========================================
         #       SPARA API-DATA
         #========================================
 
         try:
-
-            with open(
-                "jobbdata.json",
-                "w",
-                encoding="utf-8"
+            with open(                             # Öppnar filen för skrivning.
+                "jobbdata.json",                   # Filen som ska sparas.
+                "w",                               # "w" betyder skrivläge.
+                encoding="utf-8"                   # Gör att svenska tecken fungerar.
             ) as f:
-
-                json.dump(
-                    alla_data,
-                    f,
-                    ensure_ascii=False,
-                    indent=4
+                json.dump(                          # Skriver Python-data som JSON.
+                    alla_data,                      # Data som ska sparas.
+                    f,                              # Filen som datan skrivs till.
+                    ensure_ascii=False,             # Behåller svenska tecken.
+                    indent=4                        # Gör JSON-filen lättare att läsa.
                 )
 
-        except OSError as fel:
-
+        except OSError as fel:                     # Fångar fel vid filskrivning.
             print("\nKunde inte spara jobbdata.")
             print(fel)
 
-        return jobbannonser
+        return jobbannonser                         # Returnerar alla skapade jobbannonser.
 
-    except requests.exceptions.RequestException as fel:
-
+    except requests.exceptions.RequestException as fel:  # Fångar nätverksfel.
         print("\nEtt fel uppstod när API:t kontaktades.")
         print(fel)
-
         return []
 
-    except json.JSONDecodeError:
-
+    except json.JSONDecodeError:                   # Fångar felaktig JSON från API:t.
         print("\nKunde inte läsa svaret från API:t.")
-
         return []
 
 
@@ -312,40 +240,33 @@ def hämta_jobb_från_api(profil):
 #       HISTORIK
 #========================================
 
-def spara_historik(profil, matchningar):
+def spara_historik(profil, matchningar):           # Sparar en sökning i historiken.
 
     try:
-
-        with open(
-            "historik.json",
-            "r",
+        with open(                                  # Öppnar historikfilen.
+            "historik.json",                        # Filens namn.
+            "r",                                    # "r" betyder läsläge.
             encoding="utf-8"
         ) as f:
+            historik = json.load(f)                 # Läser JSON och gör om till Python-data.
 
-            historik = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):  # Om filen saknas eller är trasig.
+        historik = []                               # Börjar då med en tom historik.
 
-    except (FileNotFoundError, json.JSONDecodeError):
 
-        historik = []
-
-    ny_sökning = {
-        "datum": datetime.now().strftime(
-            "%Y-%m-%d %H:%M"
-        ),
-
-        "profil": {
+    ny_sökning = {                                  # Skapar en ny historikpost.
+        "datum": datetime.now().strftime("%Y-%m-%d %H:%M"),  # Sparar aktuellt datum och tid.
+        "profil": {                                 # Sparar användarens profil.
             "jobb": profil.jobb,
             "plats": profil.plats,
             "kompetenser": profil.kompetenser
         },
-
-        "matchningar": []
+        "matchningar": []                           # Här kommer matchande jobb sparas.
     }
 
-    # Sparar alla matchningar
-    for jobb, poäng in matchningar:
 
-        ny_sökning["matchningar"].append({
+    for jobb, poäng in matchningar:                 # Går igenom alla matchningar.
+        ny_sökning["matchningar"].append({          # Lägger till varje jobb i historiken.
             "jobb": jobb.jobb,
             "plats": jobb.plats,
             "poäng": poäng,
@@ -353,25 +274,23 @@ def spara_historik(profil, matchningar):
             "länk": jobb.länk
         })
 
-    historik.append(ny_sökning)
+    historik.append(ny_sökning)                     # Lägger den nya sökningen sist i historiken.
+
 
     try:
-
-        with open(
+        with open(                                  # Öppnar historikfilen för skrivning.
             "historik.json",
             "w",
             encoding="utf-8"
         ) as f:
-
-            json.dump(
+            json.dump(                              # Sparar hela historiken som JSON.
                 historik,
                 f,
                 ensure_ascii=False,
                 indent=4
             )
 
-    except OSError as fel:
-
+    except OSError as fel:                          # Fångar fel när filen ska sparas.
         print("\nKunde inte spara historiken.")
         print(fel)
         return
@@ -379,30 +298,25 @@ def spara_historik(profil, matchningar):
     print("\nSökningen har sparats i historiken.")
 
 
-def visa_historik():
+def visa_historik():                                # Visar sparade sökningar.
 
     try:
-
-        with open(
+        with open(                                  # Öppnar historikfilen.
             "historik.json",
             "r",
             encoding="utf-8"
         ) as f:
+            historik = json.load(f)                 # Läser in historiken.
 
-            historik = json.load(f)
-
-    except FileNotFoundError:
-
+    except FileNotFoundError:                       # Om historikfilen inte finns.
         print("\nDet finns ingen historik ännu.")
         return
 
-    except json.JSONDecodeError:
-
+    except json.JSONDecodeError:                    # Om JSON-filen är felaktig.
         print("\nHistorikfilen kunde inte läsas.")
         return
 
-    if not historik:
-
+    if not historik:                                # Kontrollerar om listan är tom.
         print("\nDet finns ingen historik ännu.")
         return
 
@@ -410,45 +324,22 @@ def visa_historik():
     print("              HISTORIK")
     print("=" * 40)
 
-    # Går igenom tidigare sökningar
-    for nummer, sökning in enumerate(
-        historik,
-        start=1
-    ):
+    for nummer, sökning in enumerate(historik, 1):  # Går igenom historiken med löpnummer.
 
         print(f"\nSökning {nummer}")
         print(f"Datum: {sökning['datum']}")
-
-        print(
-            f"Jobb: "
-            f"{', '.join(sökning['profil']['jobb'])}"
-        )
-
-        print(
-            f"Plats: "
-            f"{', '.join(sökning['profil']['plats'])}"
-        )
-
-        print(
-            f"Kompetenser: "
-            f"{', '.join(sökning['profil']['kompetenser'])}"
-        )
+        print(f"Jobb: {', '.join(sökning['profil']['jobb'])}")  # Gör jobblistan till text.
+        print(f"Plats: {', '.join(sökning['profil']['plats'])}")  # Gör platslistan till text.
+        print(f"Kompetenser: {', '.join(sökning['profil']['kompetenser'])}")  # Gör kompetenslistan till text.
 
         print("\nMatchningar:")
 
-        for jobb in sökning["matchningar"]:
+        for jobb in sökning["matchningar"]:         # Går igenom alla jobb i sökningen.
 
             print(f"  - {jobb['jobb']}")
             print(f"    Plats: {jobb['plats']}")
             print(f"    Poäng: {jobb['poäng']}")
-
-            print(
-                "    Matchande kompetenser: "
-                + visa_kompetenser(
-                    jobb["kompetenser"]
-                )
-            )
-
+            print("    Matchande kompetenser: " + visa_kompetenser(jobb["kompetenser"]))
             print(f"    Länk: {jobb['länk']}")
 
         print("-" * 40)
@@ -458,52 +349,37 @@ def visa_historik():
 #       VISA MATCHNINGAR
 #========================================
 
-def visa_matchningar(profil):
+def visa_matchningar(profil):                       # Hämtar, matchar och visar jobb.
 
     print("\nHämtar aktuella jobbannonser...")
 
-    jobb_fran_api = hämta_jobb_från_api(profil)
+    jobb_fran_api = hämta_jobb_från_api(profil)      # Hämtar jobb från API:t.
 
-    if not jobb_fran_api:
-
+    if not jobb_fran_api:                            # Om inga jobb hämtades.
         print("Inga jobbannonser kunde hämtas.")
         return
 
-    matchare = Matchare(
-        profil,
-        jobb_fran_api
-    )
+    matchningar = Matchare(                         # Skapar en Matchare.
+        profil,                                      # Skickar in användarens profil.
+        jobb_fran_api                                 # Skickar in hämtade jobb.
+    ).match()                                        # Kör matchningsfunktionen direkt.
 
-    matchningar = matchare.match()
-
-    if not matchningar:
-
+    if not matchningar:                              # Om inga jobb matchade.
         print("\nInga jobb matchade din profil.")
         return
 
-    # Sparar sökningen i historiken
-    spara_historik(
-        profil,
-        matchningar
-    )
+    spara_historik(profil, matchningar)              # Sparar resultatet.
 
     print("\n" + "=" * 40)
     print("           DINA MATCHNINGAR")
     print("=" * 40)
 
-    for jobb, poäng in matchningar:
+    for jobb, poäng in matchningar:                  # Går igenom matchningarna i poängordning.
 
         print(f"\n- {jobb.jobb}")
         print(f"  Plats: {jobb.plats}")
         print(f"  Poäng: {poäng}")
-
-        print(
-            "  Matchande kompetenser: "
-            + visa_kompetenser(
-                jobb.kompetenser
-            )
-        )
-
+        print("  Matchande kompetenser: " + visa_kompetenser(jobb.kompetenser))
         print(f"  Länk: {jobb.länk}")
 
 
@@ -511,85 +387,77 @@ def visa_matchningar(profil):
 #       ANVÄNDARGRÄNSSNITT
 #========================================
 
-profil = Profil()
+profil = Profil()                                    # Skapar programmets profil.
 
 
-def user_ui():
+def user_ui():                                       # Programmets huvudmeny.
 
-    while True:
+    while True:                                      # Kör menyn tills användaren avslutar.
 
         print("\n")
         print("=" * 40)
         print("       VÄLKOMMEN TILL AI-JOBBANALYS")
         print("=" * 40)
-
         print("1. Ställ in profil")
         print("2. Visa matchningar")
         print("3. Historik")
         print("4. Avsluta")
-
         print("=" * 40)
 
         try:
+            svar = input("Välj ett alternativ 1-4: ") # Hämtar användarens menyval.
 
-            svar = input(
-                "Välj ett alternativ 1-4: "
-            )
-
-        except (KeyboardInterrupt, EOFError):
-
+        except (KeyboardInterrupt, EOFError):        # Fångar avbruten inmatning.
             print("\nProgrammet avslutas.")
             break
+
 
         #========================================
         #       PROFIL
         #========================================
 
-        if svar == "1":
+        if svar == "1":                              # Användaren väljer profil.
 
-            profil.input_jobb()
-            profil.input_plats()
-            profil.input_kompetenser()
+            profil.input_jobb()                      # Hämtar önskade jobb.
+            profil.input_plats()                     # Hämtar önskade platser.
+            profil.input_kompetenser()               # Hämtar kompetenser.
 
             print("\nProfil ändrad!")
+            print(f"\nJobb: {profil.jobb}")
+            print(f"Plats/Ort: {profil.plats}")
+            print(f"Kompetenser: {profil.kompetenser}")
 
-            print(
-                f"\nJobb: {profil.jobb}"
-                f"\nPlats/Ort: {profil.plats}"
-                f"\nKompetenser: {profil.kompetenser}"
-            )
 
         #========================================
         #       MATCHNINGAR
         #========================================
 
-        elif svar == "2":
+        elif svar == "2":                            # Användaren väljer matchningar.
+            visa_matchningar(profil)                 # Hämtar och visar matchande jobb.
 
-            visa_matchningar(profil)
 
         #========================================
         #       HISTORIK
         #========================================
 
-        elif svar == "3":
+        elif svar == "3":                            # Användaren väljer historik.
+            visa_historik()                          # Visar tidigare sökningar.
 
-            visa_historik()
 
         #========================================
         #       AVSLUTA
         #========================================
 
-        elif svar == "4":
-
+        elif svar == "4":                            # Användaren väljer att avsluta.
             print("\nTack för denna gång!")
-            break
+            break                                    # Avslutar while-loopen.
+
 
         #========================================
         #       FELAKTIGT VAL
         #========================================
 
-        else:
-
+        else:                                        # Körs om valet inte är 1–4.
             print("\nFelaktigt val.")
             print("Välj en siffra mellan 1 och 4.")
 
@@ -598,7 +466,7 @@ def user_ui():
 #       STARTA PROGRAMMET
 #========================================
 
-user_ui()
+user_ui()                                            # Startar programmets huvudmeny.
 
 
 #========================================
@@ -622,4 +490,3 @@ user_ui()
 #
 # 6. Testning:
 #    Testa och färdigställ programmet
-
