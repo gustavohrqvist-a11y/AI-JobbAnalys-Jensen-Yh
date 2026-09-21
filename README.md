@@ -14,14 +14,16 @@ Matcha en användare med ett jobb för att underlätta att hitta jobb som man ä
 7. Matchningarna sparas sedan i historik.json med datum och tid.
 
 ## Resultat
-De 5 vanligaste teknologierna var:
+  Resultatet av mitt arbete är ett grundprogram. Användare får skapa en profil där hen lägger in olika kriterier på vad och vart hen vill jobba med. Användare kan också skriva in kompetenser som hen har.
+
+   Programmet anroppar sedan jobbtech API, för att kontrollera vad för jobb annonser som finns. Programet jämnför sedan dem befintliga jobb anonserna med användarens input för varje match tilldelas poäng Programmet returnerar sedan matchningar med länk till jobb annonsen. 
 
 
 ## Analys
-Resultatet visar att Python är dominerande för AI-roller i Sverige. Molnkompetens (AWS) och containerisering (Docker) är också viktigt.
+
 
 ## Reflektion
 Det svåraste var att hantera API:ns rate limits. Nästa gång skulle jag lägga till caching för att minska antalet anrop.
 
 ## GitHub-länk
-https://github.com/mittanvandare/jobbannons-analys
+https://github.com/gustavohrqvist-a11y/AI-JobbAnalys-Jensen-Yh
