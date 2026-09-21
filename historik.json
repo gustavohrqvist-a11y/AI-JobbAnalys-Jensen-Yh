@@ -1,0 +1,109 @@
+[
+    {
+        "datum": "2026-09-21 13:09",
+        "profil": {
+            "jobb": [
+                "lärare"
+            ],
+            "plats": [
+                "stockholm"
+            ],
+            "kompetenser": [
+                "python",
+                "git"
+            ]
+        },
+        "matchningar": [
+            {
+                "jobb": "lärare",
+                "plats": "värmdö",
+                "poäng": 1,
+                "kompetenser": [
+                    "git"
+                ],
+                "länk": "https://arbetsformedlingen.se/platsbanken/annonser/31498371"
+            },
+            {
+                "jobb": "lärare 4-6",
+                "plats": "smedjebacken",
+                "poäng": 1,
+                "kompetenser": [
+                    "git"
+                ],
+                "länk": "https://arbetsformedlingen.se/platsbanken/annonser/31492314"
+            },
+            {
+                "jobb": "lärare fritidshem",
+                "plats": "kalmar",
+                "poäng": 1,
+                "kompetenser": [
+                    "git"
+                ],
+                "länk": "https://arbetsformedlingen.se/platsbanken/annonser/31491678"
+            },
+            {
+                "jobb": "lärare sfi",
+                "plats": "göteborg",
+                "poäng": 1,
+                "kompetenser": [
+                    "git"
+                ],
+                "länk": "https://arbetsformedlingen.se/platsbanken/annonser/31484986"
+            },
+            {
+                "jobb": "lärare f-3",
+                "plats": "hjo",
+                "poäng": 1,
+                "kompetenser": [
+                    "git"
+                ],
+                "länk": "https://arbetsformedlingen.se/platsbanken/annonser/31475897"
+            },
+            {
+                "jobb": "lärare f-3",
+                "plats": "gotland",
+                "poäng": 1,
+                "kompetenser": [
+                    "git"
+                ],
+                "länk": "https://arbetsformedlingen.se/platsbanken/annonser/31472939"
+            },
+            {
+                "jobb": "special lärare",
+                "plats": "östersund",
+                "poäng": 1,
+                "kompetenser": [
+                    "git"
+                ],
+                "länk": "https://arbetsformedlingen.se/platsbanken/annonser/31472542"
+            },
+            {
+                "jobb": "timvikarie lärare",
+                "plats": "kristianstad",
+                "poäng": 1,
+                "kompetenser": [
+                    "git"
+                ],
+                "länk": "https://arbetsformedlingen.se/platsbanken/annonser/31419036"
+            },
+            {
+                "jobb": "lärare, sfi",
+                "plats": "trelleborg",
+                "poäng": 1,
+                "kompetenser": [
+                    "git"
+                ],
+                "länk": "https://arbetsformedlingen.se/platsbanken/annonser/31411344"
+            },
+            {
+                "jobb": "lärare sfi",
+                "plats": "hagfors",
+                "poäng": 1,
+                "kompetenser": [
+                    "git"
+                ],
+                "länk": "https://arbetsformedlingen.se/platsbanken/annonser/31410145"
+            }
+        ]
+    }
+]
