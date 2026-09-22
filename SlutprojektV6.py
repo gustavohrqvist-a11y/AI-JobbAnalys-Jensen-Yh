@@ -31,6 +31,9 @@ def visa_kompetenser(kompetenser):               # Tar emot en lista med kompete
 #       KLASSER
 #========================================
 
+#====================
+# Inhämtning av data                             #Inhämtning av data från användaren.
+#====================
 class MatchningsData:                            # Basklass för gemensam information.
 
     def __init__(self):                           # Körs när ett objekt skapas.
@@ -72,6 +75,10 @@ class Profil(MatchningsData):                    # Profil ärver plats och kompe
         except (KeyboardInterrupt, EOFError):      # Fångar Ctrl+C och avslutad inmatning.
             print("\nInmatningen avbröts.")
 
+
+#====================
+# MATCHARE                                        # Matchare är ansvarig för att jämföra profil mot jobbannonser och räkna ut poäng.
+#====================
 
 class Jobbannons(MatchningsData):                 # Klass som representerar en jobbannons.
 
@@ -120,7 +127,7 @@ class Matchare:                                   # Ansvarar för att matcha pro
             if poäng == 0:                          # Om titel matchade men inget annat gjorde det...
                 poäng = 1                            # ...får jobbet ändå 1 poäng.
 
-            matchningar.append((jobb, poäng))        # Sparar jobbet tillsammans med poängen.
+            matchningar.append((jobb, poäng))        # Sparar jobbet tillsammans med poängen i en tuple.
 
         matchningar.sort(                             # Sorterar matchningarna.
             key=lambda x: x[1],                     # Använder poängen som sorteringsvärde.
@@ -243,11 +250,11 @@ def hämta_jobb_från_api(profil):                    # Hämtar jobb från JobTe
 def spara_historik(profil, matchningar):           # Sparar en sökning i historiken.
 
     try:
-        with open(                                  # Öppnar historikfilen.
+        with open(                                  # Öppnar historikfilen. / stänger filen automatiskt när vi är klara.
             "historik.json",                        # Filens namn.
             "r",                                    # "r" betyder läsläge.
             encoding="utf-8"
-        ) as f:
+        ) as f:                                     # Här ger vi den öppnade filen namnet: f
             historik = json.load(f)                 # Läser JSON och gör om till Python-data.
 
     except (FileNotFoundError, json.JSONDecodeError):  # Om filen saknas eller är trasig.
@@ -278,11 +285,11 @@ def spara_historik(profil, matchningar):           # Sparar en sökning i histor
 
 
     try:
-        with open(                                  # Öppnar historikfilen för skrivning.
-            "historik.json",
-            "w",
-            encoding="utf-8"
-        ) as f:
+        with open(                                  # Öppnar historikfilen för skrivning. / Stänger filen automatiskt när vi är klara.
+            "historik.json",                        #filen som ska sparas.
+            "w",                                    #Write läge / Skrivläge
+            encoding="utf-8"                        #tilåtter svenskt alfabete och tecken
+        ) as f:                                     #Här ger vi den öppnade filen namnet f
             json.dump(                              # Sparar hela historiken som JSON.
                 historik,
                 f,
@@ -467,7 +474,6 @@ def user_ui():                                       # Programmets huvudmeny.
 #========================================
 
 user_ui()                                            # Startar programmets huvudmeny.
-
 
 #========================================
 #       UTVECKLINGSPLAN

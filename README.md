@@ -1,5 +1,4 @@
-# AI-JobbAnalys-Jensen-Yh
-=======
+
 # AI-JobbAnalys-Jensen-Yh
 
 
