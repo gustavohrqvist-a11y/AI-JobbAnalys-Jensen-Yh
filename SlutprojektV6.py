@@ -475,24 +475,3 @@ def user_ui():                                       # Programmets huvudmeny.
 
 user_ui()                                            # Startar programmets huvudmeny.
 
-#========================================
-#       UTVECKLINGSPLAN
-#========================================
-
-# 1. Profil:
-#    Jobb, Plats, Kompetenser
-#
-# 2. API:
-#    Hämta aktuella jobbannonser
-#
-# 3. Matchning:
-#    Matcha jobb, plats, kompetenser
-#
-# 4. Resultat:
-#    Visa jobb och matchningspoäng
-#
-# 5. Förbättringar:
-#    Validering, Historik, Bättre UI
-#
-# 6. Testning:
-#    Testa och färdigställ programmet
