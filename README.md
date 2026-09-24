@@ -37,6 +37,9 @@ PCAP syftar mer på OOP och att använda Python mer avancerat än grundläggande
 PCEI – Certified Entry-Level AI Specialist with Python:
 PCEI handlar om AI. Mitt program använder sig inte av AI, men arbetsflödet liknar arbetsflödet för AI. Datainsamling → requests.get() (hämtar information från API i JSON-format) → databearbetning (normalisering) och så vidare.
 
+GDPR - General Data Protection Regulation:
+GDPR finns i förstahand för att skydda privatpersoners personliga information. Mitt program uppfyller ej kraven för gdpr eftersom jag blandannat sparar historiken föralltid, detta är något jag hade velat vidareutveckla i framtiden. 
+
 ## Reflektion
 Under arbetet med mitt projekt har jag fått en större förståelse för Python, men också för hur annorlunda man använder Python i näringslivet. Jag har lärt mig att använda OOP och API. Med hjälp av OOP har jag använt klasser och arv för att återanvända kod och inte behöva skriva samma sak flera gånger. Med API kan jag hämta in riktiga jobbannonser och använda dem för att matcha en användare med olika annonser.
 

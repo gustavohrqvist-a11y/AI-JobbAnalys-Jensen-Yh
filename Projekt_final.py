@@ -138,76 +138,79 @@ class Matchare:                                   # Ansvarar för att matcha pro
 
 
 #========================================
-#       API
+#       API-FUNKTION
 #========================================
 
-def hämta_jobb_från_api(profil):                    # Hämtar jobb från JobTech API.
+def hämta_jobb_från_api(profil):                         # Skapar funktionen som hämtar jobb från API:t.
+    if not profil.jobb:                                  # Kontrollerar om användaren har valt något jobb.
+        print("Du måste ställa in din profil först.")    # Informerar användaren att profilen måste fyllas i.
+        return []                                        # Returnerar en tom lista när ingen profil finns.
 
-    if not profil.jobb:                              # Kontrollerar om användaren valt något jobb.
-        print("Du måste ställa in din profil först.")
-        return []                                    # Returnerar tom lista om inget jobb valts.
+    url = "https://jobsearch.api.jobtechdev.se/search"   # Sparar adressen till JobTechs API.
+    jobbannonser = []                                    # Skapar en lista för jobbannonser.
+    alla_data = []                                       # Skapar en lista för rådata från API:t.
 
-    url = "https://jobsearch.api.jobtechdev.se/search"  # API-adressen.
-    jobbannonser = []                                # Här sparas skapade Jobbannons-objekt.
-    alla_data = []                                   # Här sparas rådata från API:t.
+    try:                                                 # Försöker köra kod som kan ge ett fel.
+        for sökord in profil.jobb:                       # Söker efter varje önskat jobb.
+            print(f"\nSöker efter: {sökord}")            # Visar vilket sökord som används.
 
-    try:
+            response = requests.get(                    # Skickar ett GET-anrop till API:t.
+                url,                                    # Anger API-adressen som ska anropas.
+                params={"q": sökord, "limit": 10},       # Skickar sökord och begränsar resultatet till tio annonser.
+                timeout=10                               # Avbryter anropet om API:t inte svarar inom tio sekunder.
+            )                                           # Kodrad som används för programmets funktion.
 
-        for sökord in profil.jobb:                   # Söker efter varje önskat jobb.
+            print("Statuskod:", response.status_code)   # Visar HTTP-statuskoden från API:t.
 
-            print(f"\nSöker efter: {sökord}")
+            if response.status_code != 200:              # Kontrollerar om API-anropet lyckades.
+                print("Kunde inte hämta jobbannonser.")  # Informerar om att annonserna inte kunde hämtas.
+                continue                                 # Hoppar vidare till nästa jobb.
 
-            response = requests.get(                # Skickar GET-anrop till API:t.
-                url,                                 # API-adressen.
-                params={"q": sökord, "limit": 10},  # Sökord och max 10 resultat.
-                timeout=10                            # Avbryter om API:t inte svarar inom 10 sekunder.
-            )
+            data = response.json()                       # Omvandlar API-svaret från JSON till Python-data.
+            alla_data.append(data)                       # Sparar API-svaret i listan med rådata.
 
-            print("Statuskod:", response.status_code)  # Visar API:ts svarskod.
+            träffar = data.get("hits", [])               # Hämtar jobbträffarna från API-svaret.
+            print("Antal träffar:", len(träffar))        # Visar antalet hittade jobb.
 
-            if response.status_code != 200:          # 200 betyder att anropet lyckades.
-                print("Kunde inte hämta jobbannonser.")
-                continue                             # Fortsätter med nästa sökord.
+            for jobb in träffar:                         # Går igenom varje hittad jobbannons.
+                titel = normalisera(jobb.get("headline") or "")  # Hämtar och normaliserar jobbets titel.
 
-            data = response.json()                   # Gör om JSON-svaret till Python-data.
-            alla_data.append(data)                   # Sparar hela API-svaret.
+                adress = jobb.get("workplace_address") or {}     # Hämtar arbetsplatsens adress eller en tom dictionary.
+                plats = normalisera(adress.get("municipality") or "") # Hämtar kommunen eller använder tom text.
 
-            träffar = data.get("hits", [])           # Hämtar jobbträffarna från svaret.
-            print("Antal träffar:", len(träffar))    # Visar hur många jobb som hittades.
+                länk = jobb.get("webpage_url") or ""     # Hämtar länken till jobbannonsen.
 
+                beskrivning = jobb.get("description") or {}       # Hämtar beskrivningsobjektet.
+                beskrivning = normalisera(beskrivning.get("text") or "") # Hämtar beskrivningens text eller tom text.
 
-            for jobb in träffar:                     # Går igenom varje jobb från API:t.
+                matchade_kompetenser = []                # Skapar en lista för kompetenser som matchar.
 
-                titel = normalisera(                 # Hämtar och normaliserar jobbtiteln.
-                    jobb.get("headline") or ""       # Om titel saknas används tom text.
+                for kompetens in profil.kompetenser:     # Går igenom användarens kompetenser.
+                    if kompetens in beskrivning:         # Kontrollerar om kompetensen finns i beskrivningen.
+                        matchade_kompetenser.append(kompetens)  # Lägger till den matchande kompetensen.
+
+                jobbannonser.append(                     # Lägger till en ny jobbannons i listan.
+                    Jobbannons(titel, plats, matchade_kompetenser, länk) # Skapar ett Jobbannons-objekt.
                 )
 
-                plats = normalisera(                 # Hämtar och normaliserar arbetsplatsen.
-                    (jobb.get("workplace_address") or {})  # Hämtar adressen eller tom dictionary.
-                    .get("municipality") or ""       # Hämtar kommunen eller tom text.
-                )
+        try:                                             # Försöker köra kod som kan ge ett fel.
+            with open("jobbdata.json", "w", encoding="utf-8") as f: # Öppnar en fil.
+                json.dump(alla_data, f, ensure_ascii=False, indent=4) # Skriver Python-data till JSON-format.
 
-                länk = jobb.get("webpage_url") or "" # Hämtar länk till jobbannonsen.
+        except OSError as fel:                            # Fångar fel vid filhantering.
+            print("\nKunde inte spara jobbdata.")         # Informerar om att jobbdata inte kunde sparas.
+            print(fel)                                   # Visar felmeddelandet.
 
-                beskrivning = normalisera(           # Hämtar och normaliserar beskrivningen.
-                    jobb.get("description", {})      # Hämtar beskrivningsobjektet.
-                    .get("text") or ""               # Hämtar själva texten.
-                )
+        return jobbannonser                               # Returnerar de hämtade jobbannonserna.
 
-                matchade_kompetenser = []            # Lista för kompetenser som hittas i annonsen.
+    except requests.exceptions.RequestException as fel:  # Fångar nätverksfel från requests.
+        print("\nEtt fel uppstod när API:t kontaktades.") # Informerar om API-felet.
+        print(fel)                                       # Visar felmeddelandet.
+        return []                                        # Returnerar en tom lista.
 
-                for kompetens in profil.kompetenser: # Går igenom användarens kompetenser.
-                    if kompetens in beskrivning:     # Kontrollerar om kompetensen finns i texten.
-                        matchade_kompetenser.append(kompetens)  # Sparar matchningen.
-
-                jobbannonser.append(                    # Lägger till en ny jobbannons.
-                    Jobbannons(                         # Skapar ett Jobbannons-objekt.
-                        titel,                          # Jobbtitel.
-                        plats,                          # Arbetsplats.
-                        matchade_kompetenser,           # Matchande kompetenser.
-                        länk                             # Länk till annonsen.
-                    )
-                )
+    except json.JSONDecodeError:                         # Fångar felaktig JSON-data.
+        print("\nKunde inte läsa svaret från API:t.")    # Informerar om att API-svaret inte kunde läsas.
+        return []                                        # Returnerar en tom lista.
 
 
         #========================================
