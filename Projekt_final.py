@@ -213,39 +213,6 @@ def hämta_jobb_från_api(profil):                         # Skapar funktionen s
         return []                                        # Returnerar en tom lista.
 
 
-        #========================================
-        #       SPARA API-DATA
-        #========================================
-
-        try:
-            with open(                             # Öppnar filen för skrivning.
-                "jobbdata.json",                   # Filen som ska sparas.
-                "w",                               # "w" betyder skrivläge.
-                encoding="utf-8"                   # Gör att svenska tecken fungerar.
-            ) as f:
-                json.dump(                          # Skriver Python-data som JSON.
-                    alla_data,                      # Data som ska sparas.
-                    f,                              # Filen som datan skrivs till.
-                    ensure_ascii=False,             # Behåller svenska tecken.
-                    indent=4                        # Gör JSON-filen lättare att läsa.
-                )
-
-        except OSError as fel:                     # Fångar fel vid filskrivning.
-            print("\nKunde inte spara jobbdata.")
-            print(fel)
-
-        return jobbannonser                         # Returnerar alla skapade jobbannonser.
-
-    except requests.exceptions.RequestException as fel:  # Fångar nätverksfel.
-        print("\nEtt fel uppstod när API:t kontaktades.")
-        print(fel)
-        return []
-
-    except json.JSONDecodeError:                   # Fångar felaktig JSON från API:t.
-        print("\nKunde inte läsa svaret från API:t.")
-        return []
-
-
 #========================================
 #       HISTORIK
 #========================================
